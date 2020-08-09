@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "working_saturdays")
-public class WorkingSaturdays {
+public class WorkingSaturdays implements Comparable<WorkingSaturdays> {
 
 	@Id
 	@GeneratedValue
@@ -58,5 +58,11 @@ public class WorkingSaturdays {
 	public String toString() {
 		return "WorkingSaturdays [name=" + name + ", workingDate=" + workingDate + "]";
 	}
+
+	@Override
+	public int compareTo(WorkingSaturdays o) {
+		return getWorkingDate().compareTo(o.getWorkingDate());
+	}
+	
 
 }

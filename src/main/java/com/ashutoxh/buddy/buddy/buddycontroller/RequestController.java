@@ -1,5 +1,7 @@
 package com.ashutoxh.buddy.buddy.buddycontroller;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,17 +33,28 @@ public class RequestController {
 		return user;
 	}
 
-	@GetMapping(path="/getAllSaturdays" ,produces = "application/json")
+	@GetMapping(path="/getAllSaturdays", produces = "application/json")
 	public List<WorkingSaturdays> getSaturdayForAll() {
-		return workSatService.getWorkingSaturdays();
+		List<WorkingSaturdays> workList = workSatService.getWorkingSaturdays();
+		Collections.sort(workList);
+		return workList;
 	}
 
-	@GetMapping(path="/getAllSaturdays/{month}" ,produces = "application/json")
-	public List<User> getSaturdayForMonth(@PathVariable String month) {
-		return null;
+	@GetMapping(path="/getAllSaturdays/{month}", produces = "application/json")
+	public List<WorkingSaturdays> getSaturdayForMonth(@PathVariable String month) {
+		List<WorkingSaturdays> workList = workSatService.getWorkingSaturdaysForMonth(month);
+		Collections.sort(workList);
+		return workList;
 	}
 	
-	@GetMapping(path="/admin/setAllSaturdays" ,produces = "application/json")
+	@GetMapping(path="/swapSaturdays/first/{first}/second/{second}", produces = "application/json")
+	public List<WorkingSaturdays> swapSaturdays(@PathVariable String first, @PathVariable String second) {
+		List<WorkingSaturdays> workList = workSatService.swapSaturdays(Arrays.asList(new String[] {first,second}));
+		Collections.sort(workList);
+		return workList;
+	}
+	
+	@GetMapping(path="/admin/setAllSaturdays", produces = "application/json")
 	public String setSaturdays() {
 		String result = workSatService.setSaturdayDatesForYear();
 		return result;

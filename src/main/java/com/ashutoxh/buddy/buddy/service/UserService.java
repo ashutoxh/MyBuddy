@@ -13,6 +13,8 @@ public class UserService {
 
 	@Autowired
 	UserRepository userRepository;
+	@Autowired
+	WorkingSaturdayService workingSaturdayService;
 
 	public List<User> getUsers(){
 		return (List<User>) userRepository.findAll();
@@ -20,6 +22,7 @@ public class UserService {
 	
 	public User addUser(String name) {
 		User user = userRepository.save(new User(name));
+		workingSaturdayService.reassignWorkingSaturday();
 		return user;
 	}
 
