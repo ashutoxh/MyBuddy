@@ -7,13 +7,16 @@ import javax.persistence.Table;
 
 import org.springframework.lang.NonNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "users")
 public class User {
-
 	@Id
 	@GeneratedValue
+	@JsonIgnore
 	Integer id;
+
 	@NonNull
 	String name;
 	Integer pendingCompOffs;

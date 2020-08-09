@@ -10,6 +10,7 @@ import javax.persistence.Table;
 import org.springframework.lang.NonNull;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "working_saturdays")
@@ -17,6 +18,7 @@ public class WorkingSaturdays {
 
 	@Id
 	@GeneratedValue
+	@JsonIgnore
 	Integer id;
 	@NonNull
 	String name;
@@ -25,6 +27,11 @@ public class WorkingSaturdays {
 
 	public WorkingSaturdays() {
 		// TODO Auto-generated constructor stub
+	}
+
+	public WorkingSaturdays(String name, LocalDate workingDate) {
+		this.name = name;
+		this.workingDate = workingDate;
 	}
 
 	public Integer getId() {
@@ -45,6 +52,11 @@ public class WorkingSaturdays {
 
 	public void setWorkingDate(LocalDate workingDate) {
 		this.workingDate = workingDate;
+	}
+
+	@Override
+	public String toString() {
+		return "WorkingSaturdays [name=" + name + ", workingDate=" + workingDate + "]";
 	}
 
 }
