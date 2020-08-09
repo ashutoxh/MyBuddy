@@ -1,4 +1,4 @@
-package com.ashutoxh.buddy.buddy.buddycontroller;
+package com.ashutoxh.buddy.buddy.controller;
 
 import java.util.Arrays;
 import java.util.Collections;

@@ -19,7 +19,7 @@ public class User {
 
 	@NonNull
 	String name;
-	Integer pendingCompOffs;
+	int pendingCompOffs;
 
 	public User() {
 		// TODO Auto-generated constructor stub
@@ -41,7 +41,7 @@ public class User {
 		this.name = name;
 	}
 
-	public Integer getPendingCompOffs() {
+	public int getPendingCompOffs() {
 		return pendingCompOffs;
 	}
 
