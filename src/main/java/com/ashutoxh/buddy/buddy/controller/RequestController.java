@@ -11,52 +11,52 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ashutoxh.buddy.buddy.entity.User;
 import com.ashutoxh.buddy.buddy.entity.WorkingSaturdays;
-import com.ashutoxh.buddy.buddy.service.UserService;
-import com.ashutoxh.buddy.buddy.service.WorkingSaturdayService;
+import com.ashutoxh.buddy.buddy.service.UserServiceImpl;
+import com.ashutoxh.buddy.buddy.service.WorkingSaturdayServiceImpl;
 
 @RestController
 public class RequestController {
 
 	@Autowired
-	UserService userService;
+	UserServiceImpl userServiceImpl;
 	@Autowired
-	WorkingSaturdayService workSatService;
+	WorkingSaturdayServiceImpl workSatServiceImpl;
 
 	@GetMapping(path="/getAllUsers", produces = "application/json")
 	public List<User> getUsers(){
-		return userService.getUsers();
+		return userServiceImpl.getUsers();
 	}
 
 	@GetMapping(path="/registerUser", produces = "application/json")
 	public User registerUser(String name) {
-		User user = userService.addUser(name);
+		User user = userServiceImpl.addUser(name);
 		return user;
 	}
 
 	@GetMapping(path="/getAllSaturdays", produces = "application/json")
 	public List<WorkingSaturdays> getSaturdayForAll() {
-		List<WorkingSaturdays> workList = workSatService.getWorkingSaturdays();
+		List<WorkingSaturdays> workList = workSatServiceImpl.getWorkingSaturdays();
 		Collections.sort(workList);
 		return workList;
 	}
 
 	@GetMapping(path="/getAllSaturdays/{month}", produces = "application/json")
 	public List<WorkingSaturdays> getSaturdayForMonth(@PathVariable String month) {
-		List<WorkingSaturdays> workList = workSatService.getWorkingSaturdaysForMonth(month);
+		List<WorkingSaturdays> workList = workSatServiceImpl.getWorkingSaturdaysForMonth(month);
 		Collections.sort(workList);
 		return workList;
 	}
 	
 	@GetMapping(path="/swapSaturdays/first/{first}/second/{second}", produces = "application/json")
 	public List<WorkingSaturdays> swapSaturdays(@PathVariable String first, @PathVariable String second) {
-		List<WorkingSaturdays> workList = workSatService.swapSaturdays(Arrays.asList(new String[] {first,second}));
+		List<WorkingSaturdays> workList = workSatServiceImpl.swapSaturdays(Arrays.asList(new String[] {first,second}));
 		Collections.sort(workList);
 		return workList;
 	}
 	
 	@GetMapping(path="/admin/setAllSaturdays", produces = "application/json")
 	public String setSaturdays() {
-		String result = workSatService.setSaturdayDatesForYear();
+		String result = workSatServiceImpl.setSaturdayDatesForYear();
 		return result;
 	}
 }

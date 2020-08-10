@@ -2,28 +2,16 @@ package com.ashutoxh.buddy.buddy.service;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.ashutoxh.buddy.buddy.entity.User;
 import com.ashutoxh.buddy.buddy.repository.UserRepository;
 
 @Component
-public class UserService {
+public interface UserService extends UserRepository {
 
-	@Autowired
-	UserRepository userRepository;
-	@Autowired
-	WorkingSaturdayService workingSaturdayService;
-
-	public List<User> getUsers(){
-		return (List<User>) userRepository.findAll();
-	}
+	public List<User> getUsers();
 	
-	public User addUser(String name) {
-		User user = userRepository.save(new User(name));
-		workingSaturdayService.reassignWorkingSaturday();
-		return user;
-	}
+	public User addUser(String name);
 
 }

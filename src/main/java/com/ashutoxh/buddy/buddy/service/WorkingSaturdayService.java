@@ -1,95 +1,33 @@
 package com.ashutoxh.buddy.buddy.service;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.Month;
-import java.time.Year;
-import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.ashutoxh.buddy.buddy.entity.User;
 import com.ashutoxh.buddy.buddy.entity.WorkingSaturdays;
-import com.ashutoxh.buddy.buddy.repository.UserRepository;
 import com.ashutoxh.buddy.buddy.repository.WorkingSaturdayRepository;
-
+	
 @Component
-public class WorkingSaturdayService {
+public interface WorkingSaturdayService extends WorkingSaturdayRepository {
 
-	@Autowired
-	WorkingSaturdayRepository workingSaturdayRepository;
-	@Autowired
-	UserRepository userRepository;
+	public List<WorkingSaturdays> getWorkingSaturdays();
 
-	public List<WorkingSaturdays> getWorkingSaturdays() {
-		return workingSaturdayRepository.findAll();
-	}
+	public List<WorkingSaturdays> getWorkingSaturdaysForMonth(String month);
 
-	public List<WorkingSaturdays> getWorkingSaturdaysForMonth(String month) {
-		List<WorkingSaturdays> workSatList = new ArrayList<WorkingSaturdays>();
-		int monthNumber = 0;
-		for (int i = 1; i <= 12; i++)
-			if (month.equalsIgnoreCase(Month.of(i).toString()))
-				monthNumber = i;
-		LocalDate monthStartDate = LocalDate.of(Year.now().getValue(), monthNumber, 1);
-		if (monthNumber != 0) {
-			workSatList = workingSaturdayRepository.findByWorkingDateBetween(monthStartDate,
-					monthStartDate.plusMonths(1));
-		}
-		return workSatList;
-	}
+	public List<WorkingSaturdays> swapSaturdays(List<String> nameList);
 
-	public List<WorkingSaturdays> swapSaturdays(List<String> nameList) {
-		List<WorkingSaturdays> workSatList = new ArrayList<WorkingSaturdays>();
-		workSatList = workingSaturdayRepository.findByWorkingDateBetweenAndNameIn(LocalDate.now(),
-				LocalDate.now().plusMonths(1), nameList);
-		LocalDate tempDT1 = workSatList.get(0).getWorkingDate();
-		LocalDate tempDT2 = workSatList.get(1).getWorkingDate();
-		workSatList.get(0).setWorkingDate(tempDT2);
-		workSatList.get(1).setWorkingDate(tempDT1);
-		workingSaturdayRepository.saveAll(workSatList);
-		return workSatList;
-	}
+	public String reassignWorkingSaturday();
 
-	public String reassignWorkingSaturday() {
-		List<User> userList = userRepository.findAll();		//Get new user list
-		LocalDate registeredDate = LocalDate.now();			//Get current date
-		List<WorkingSaturdays> workSatList = new ArrayList<WorkingSaturdays>();
-		LocalDate workingDate = registeredDate.with(TemporalAdjusters.next(DayOfWeek.SATURDAY));		//Get next Saturday from current date
-		workingDate = workingDate.plusWeeks(userList.size());			//Skip weeks equal to number of current users
-		Year year = Year.now();
-		while (!workingDate.isAfter(LocalDate.of(year.getValue(), 12, 31))) {
-			for (User user : userList) {
-				workSatList.add(new WorkingSaturdays(user.getName(), workingDate));
-				workingDate = workingDate.plusDays(7);
-			}
-		}
-		workSatList = workingSaturdayRepository.saveAll(workSatList);
-		return workSatList!=null? "Success":"Failed";
-	}
+	public String setSaturdayDatesForYear();
 
-	public String setSaturdayDatesForYear() {
-		List<WorkingSaturdays> woList = getAllSaturdaysList();
-		workingSaturdayRepository.deleteAll();
-		woList = workingSaturdayRepository.saveAll(woList);
-		return woList != null ? "Success" : "Failed";
-	}
+	public List<WorkingSaturdays> getAllSaturdaysList();
 
-	private List<WorkingSaturdays> getAllSaturdaysList() {
-		List<WorkingSaturdays> woList = new ArrayList<WorkingSaturdays>();
-		Year year = Year.now();
-		List<User> userList = userRepository.findAll();
-		LocalDate workingDate = LocalDate.of(year.getValue(), 1, 1)
-				.with(TemporalAdjusters.firstInMonth(DayOfWeek.SATURDAY)); // Gives 1st Saturday of current year
-		while (!workingDate.isAfter(LocalDate.of(year.getValue(), 12, 31))) {
-			for (User user : userList) {
-				woList.add(new WorkingSaturdays(user.getName(), workingDate));
-				workingDate = workingDate.plusDays(7);
-			}
-		}
-		return woList;
-	}
+	public List<WorkingSaturdays> findByWorkingDateGreaterThan(LocalDate registeredDate);
+
+	public List<WorkingSaturdays> findByWorkingDateBetween(LocalDate firstDate, LocalDate secondDate);
+
+	public List<WorkingSaturdays> findByWorkingDateBetweenAndNameIn(LocalDate firstDate, LocalDate secondDate,
+			List<String> nameList);
+
 }
