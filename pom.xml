@@ -65,11 +65,6 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<dependency>
-			<groupId>com.heroku.sdk</groupId>
-			<artifactId>heroku-maven-plugin</artifactId>
-			<version>2.0.3</version>
-		</dependency>
 	</dependencies>
 
 	<build>
