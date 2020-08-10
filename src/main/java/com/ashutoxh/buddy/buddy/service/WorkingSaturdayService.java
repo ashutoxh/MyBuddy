@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import com.ashutoxh.buddy.buddy.entity.User;
 import com.ashutoxh.buddy.buddy.entity.WorkingSaturdays;
 import com.ashutoxh.buddy.buddy.repository.WorkingSaturdayRepository;
 	
@@ -17,7 +18,7 @@ public interface WorkingSaturdayService extends WorkingSaturdayRepository {
 
 	public List<WorkingSaturdays> swapSaturdays(List<String> nameList);
 
-	public String reassignWorkingSaturday();
+	public String reassignWorkingSaturday(User user);
 
 	public String setSaturdayDatesForYear();
 

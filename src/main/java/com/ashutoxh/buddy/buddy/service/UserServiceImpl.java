@@ -19,10 +19,10 @@ public class UserServiceImpl {
 		return (List<User>) userService.findAll();
 	}
 	
-	public User addUser(String name) {
+	public String addUser(String name) {
 		User user = userService.save(new User(name));
-		workSatServiceImpl.reassignWorkingSaturday();
-		return user;
+		String result = workSatServiceImpl.reassignWorkingSaturday(user);
+		return result;
 	}
 
 }

@@ -28,9 +28,9 @@ public class RequestController {
 	}
 
 	@GetMapping(path="/registerUser", produces = "application/json")
-	public User registerUser(String name) {
-		User user = userServiceImpl.addUser(name);
-		return user;
+	public String registerUser(String name) {
+		String response = userServiceImpl.addUser(name);
+		return response;
 	}
 
 	@GetMapping(path="/getAllSaturdays", produces = "application/json")

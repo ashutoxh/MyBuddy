@@ -53,16 +53,29 @@ public class WorkingSaturdayServiceImpl {
 		return workSatList;
 	}
 
-	public String reassignWorkingSaturday() {
-		List<User> userList = userRepository.findAll();		//Get new user list
+	public String reassignWorkingSaturday(User user) {
+		List<User> userList = userRepository.findAll();		//Get all users
+		int size = userList.size();
+		userList.clear();
 		LocalDate registeredDate = LocalDate.now();			//Get current date
+		
 		List<WorkingSaturdays> workSatList = new ArrayList<WorkingSaturdays>();
-		LocalDate workingDate = registeredDate.with(TemporalAdjusters.next(DayOfWeek.SATURDAY));		//Get next Saturday from current date
+		workSatList = workingSaturdayService.findByWorkingDateGreaterThan(registeredDate);
+		workingSaturdayService.deleteAll(workSatList);
+		
+		LocalDate workingDate = registeredDate.with(TemporalAdjusters.next(DayOfWeek.SATURDAY));  //Get next Saturday from current date
 		workingDate = workingDate.plusWeeks(userList.size());			//Skip weeks equal to number of current users
+		
+		for(int i=0; i<size-1; i++) {
+			userList.add(new User(workSatList.get(i).getName()));
+		}
+		userList.add(user);
+		workSatList.clear();
+		
 		Year year = Year.now();
 		while (!workingDate.isAfter(LocalDate.of(year.getValue(), 12, 31))) {
-			for (User user : userList) {
-				workSatList.add(new WorkingSaturdays(user.getName(), workingDate));
+			for (User u : userList) {
+				workSatList.add(new WorkingSaturdays(u.getName(), workingDate));
 				workingDate = workingDate.plusDays(7);
 			}
 		}
