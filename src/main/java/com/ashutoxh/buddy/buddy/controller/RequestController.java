@@ -14,6 +14,8 @@ import com.ashutoxh.buddy.buddy.entity.WorkingSaturdays;
 import com.ashutoxh.buddy.buddy.service.UserServiceImpl;
 import com.ashutoxh.buddy.buddy.service.WorkingSaturdayServiceImpl;
 
+import io.swagger.annotations.ApiOperation;
+
 @RestController
 public class RequestController {
 
@@ -22,39 +24,46 @@ public class RequestController {
 	@Autowired
 	WorkingSaturdayServiceImpl workSatServiceImpl;
 
-	@GetMapping(path="/getAllUsers", produces = "application/json")
-	public List<User> getUsers(){
+	@GetMapping(path = "/getAllUsers")
+	@ApiOperation(value = "Get list of names and pending comoffs of all users")
+	public List<User> getUsers() {
 		return userServiceImpl.getUsers();
 	}
 
-	@GetMapping(path="/registerUser", produces = "application/json")
+	@GetMapping(path = "/registerUser")
+	@ApiOperation(value = "Add new users. Saturdays will be recalculated after registration. New user will be assigned Saturday after 1 cycle")
 	public String registerUser(String name) {
 		String response = userServiceImpl.addUser(name);
 		return response;
 	}
 
-	@GetMapping(path="/getAllSaturdays", produces = "application/json")
+	@GetMapping(path = "/getAllSaturdays")
+	@ApiOperation(value = "Get list working saturdays for entire year")
 	public List<WorkingSaturdays> getSaturdayForAll() {
 		List<WorkingSaturdays> workList = workSatServiceImpl.getWorkingSaturdays();
 		Collections.sort(workList);
 		return workList;
 	}
 
-	@GetMapping(path="/getAllSaturdays/{month}", produces = "application/json")
+	@GetMapping(path = "/getAllSaturdays/{month}")
+	@ApiOperation(value = "Get list of working saturdays for entire month. eg: july")
 	public List<WorkingSaturdays> getSaturdayForMonth(@PathVariable String month) {
 		List<WorkingSaturdays> workList = workSatServiceImpl.getWorkingSaturdaysForMonth(month);
 		Collections.sort(workList);
 		return workList;
 	}
-	
-	@GetMapping(path="/swapSaturdays/first/{first}/second/{second}", produces = "application/json")
+
+	@GetMapping(path = "/swapSaturdays/first/{first}/second/{second}")
+	@ApiOperation(value = "Swap working saturdays in this month with names in order of working saturdays")
 	public List<WorkingSaturdays> swapSaturdays(@PathVariable String first, @PathVariable String second) {
-		List<WorkingSaturdays> workList = workSatServiceImpl.swapSaturdays(Arrays.asList(new String[] {first,second}));
+		List<WorkingSaturdays> workList = workSatServiceImpl
+				.swapSaturdays(Arrays.asList(new String[] { first, second }));
 		Collections.sort(workList);
 		return workList;
 	}
-	
-	@GetMapping(path="/admin/setAllSaturdays", produces = "application/json")
+
+	@GetMapping(path = "/admin/setAllSaturdays")
+	@ApiOperation(value = "Admin: Resets entire working saturday list and recalculates from current day with existing registered users")
 	public String setSaturdays() {
 		String result = workSatServiceImpl.setSaturdayDatesForYear();
 		return result;

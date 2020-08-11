@@ -6,8 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
-import org.springframework.lang.NonNull;
+import javax.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -20,7 +19,8 @@ public class WorkingSaturdays implements Comparable<WorkingSaturdays> {
 	@GeneratedValue
 	@JsonIgnore
 	Integer id;
-	@NonNull
+
+	@NotBlank
 	String name;
 	@JsonFormat(pattern = "dd-MM-yyyy")
 	LocalDate workingDate;
@@ -63,6 +63,5 @@ public class WorkingSaturdays implements Comparable<WorkingSaturdays> {
 	public int compareTo(WorkingSaturdays o) {
 		return getWorkingDate().compareTo(o.getWorkingDate());
 	}
-	
 
 }

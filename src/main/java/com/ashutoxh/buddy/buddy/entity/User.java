@@ -4,8 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
-import org.springframework.lang.NonNull;
+import javax.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -17,7 +16,7 @@ public class User {
 	@JsonIgnore
 	Integer id;
 
-	@NonNull
+	@NotBlank
 	String name;
 	int pendingCompOffs;
 
