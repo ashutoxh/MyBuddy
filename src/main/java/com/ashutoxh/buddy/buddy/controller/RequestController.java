@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ashutoxh.buddy.buddy.entity.User;
 import com.ashutoxh.buddy.buddy.entity.WorkingSaturdays;
+import com.ashutoxh.buddy.buddy.scheduler.Scheduler;
 import com.ashutoxh.buddy.buddy.service.UserServiceImpl;
 import com.ashutoxh.buddy.buddy.service.WorkingSaturdayServiceImpl;
 
@@ -24,6 +25,8 @@ public class RequestController {
 	UserServiceImpl userServiceImpl;
 	@Autowired
 	WorkingSaturdayServiceImpl workSatServiceImpl;
+	@Autowired
+	Scheduler scheduler;
 
 	@GetMapping(path = "/registerUser/{name}")
 	@ApiOperation(value = "Add new users. Saturdays will be recalculated after registration. New user will be assigned Saturday after 1 cycle")
@@ -31,13 +34,13 @@ public class RequestController {
 		User user = userServiceImpl.addUser(name);
 		return user;
 	}
-	
+
 	@GetMapping(path = "/getAllUsers")
 	@ApiOperation(value = "Get list of names and pending comoffs of all users")
 	public List<User> getUsers() {
 		return userServiceImpl.getUsers();
 	}
-	
+
 	@DeleteMapping(path = "/removeUser/{name}")
 	@ApiOperation(value = "Remove users. Saturdays will be recalculated after removal.")
 	public void removeUser(@PathVariable String name) {
@@ -69,10 +72,18 @@ public class RequestController {
 		return workList;
 	}
 
+	// ADMIN CODES BELOW:
+
 	@GetMapping(path = "/admin/setAllSaturdays")
 	@ApiOperation(value = "Admin: Resets entire working saturday list and recalculates from current day with existing registered users")
 	public List<WorkingSaturdays> setSaturdays() {
 		List<WorkingSaturdays> workList = workSatServiceImpl.setSaturdayDatesForYear();
 		return workList;
+	}
+
+	@GetMapping(path = "/admin/testRunCronJob")
+	@ApiOperation(value = "Admin: Runs job manually to increase comp offs")
+	public void runJobForCompOff() {
+		scheduler.incrementCompOff();
 	}
 }

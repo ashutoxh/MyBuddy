@@ -8,6 +8,8 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,7 @@ public class WorkingSaturdayServiceImpl {
 	WorkingSaturdayService workingSaturdayService;
 	@Autowired
 	UserRepository userRepository;
+	Logger logger = LoggerFactory.getLogger(WorkingSaturdayServiceImpl.class);
 
 	public List<WorkingSaturdays> getWorkingSaturdays() {
 		return workingSaturdayService.findAll();
@@ -57,37 +60,41 @@ public class WorkingSaturdayServiceImpl {
 		LocalDate registeredDate = LocalDate.now(); // Get current date
 
 		List<WorkingSaturdays> workSatList = new ArrayList<WorkingSaturdays>();
+		try {
+			if (user != null) {
+				workSatList = workingSaturdayService.findByWorkingDateGreaterThan(registeredDate);
+				workingSaturdayService.deleteInBatch(workSatList);
+			} else // Truncate entire working Saturdays to recalculate. (Admin)
+				workingSaturdayService.deleteAllInBatch();
 
-		if (user != null) {
-			workSatList = workingSaturdayService.findByWorkingDateGreaterThan(registeredDate);
-			workingSaturdayService.deleteInBatch(workSatList);
-		} else 											// Truncate entire working Saturdays to recalculate. (Admin)
-			workingSaturdayService.deleteAllInBatch();
-		
-		LocalDate workingDate = registeredDate.with(TemporalAdjusters.next(DayOfWeek.SATURDAY)); // Get next Saturday
-																									// from current date
+			LocalDate workingDate = registeredDate.with(TemporalAdjusters.next(DayOfWeek.SATURDAY)); // Get next
+																										// Saturday from
+																										// current date
 
-		if (user != null) {
-			workingDate = workingDate.plusWeeks(userList.size()); // Skip weeks equal to number of current users
-			int size = userList.size();
-			userList.clear();
+			if (user != null) {
+				workingDate = workingDate.plusWeeks(userList.size()); // Skip weeks equal to number of current users
+				int size = userList.size();
+				userList.clear();
 
-			for (int i = 0; i < size-1; i++) {
-				userList.add(new User(workSatList.get(i).getName()));
+				for (int i = 0; i < size - 1; i++) {
+					userList.add(new User(workSatList.get(i).getName()));
+				}
+				userList.add(user);
 			}
-			userList.add(user);
-		}
 
-		workSatList.clear();
+			workSatList.clear();
 
-		Year year = Year.now();
-		while (!workingDate.isAfter(LocalDate.of(year.getValue(), 12, 31))) {
-			for (User u : userList) {
-				workSatList.add(new WorkingSaturdays(u.getName(), workingDate));
-				workingDate = workingDate.plusDays(7);
+			Year year = Year.now();
+			while (!workingDate.isAfter(LocalDate.of(year.getValue(), 12, 31))) {
+				for (User u : userList) {
+					workSatList.add(new WorkingSaturdays(u.getName(), workingDate));
+					workingDate = workingDate.plusDays(7);
+				}
 			}
+			workSatList = workingSaturdayService.saveAll(workSatList);
+		} catch (Exception e) {
+			logger.error("WorkingSaturdayServiceImpl : reassignWorkingSaturday() : Exception : {} ", e.getMessage());
 		}
-		workSatList = workingSaturdayService.saveAll(workSatList);
 		return workSatList;
 	}
 
@@ -95,5 +102,9 @@ public class WorkingSaturdayServiceImpl {
 		List<WorkingSaturdays> woList = reassignWorkingSaturday(null);
 		woList = workingSaturdayService.saveAll(woList);
 		return woList;
+	}
+
+	public WorkingSaturdays getLastWorkingUser() {
+		return workingSaturdayService.findTop1ByWorkingDateLessThanOrderByWorkingDateDesc(LocalDate.now());
 	}
 }

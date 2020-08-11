@@ -28,5 +28,6 @@ public class UserServiceImpl {
 	public void removeUser(String name) {
 		User user = userService.findByName(name);
 		userService.deleteById(user.getId());
+		workSatServiceImpl.reassignWorkingSaturday(null);
 	}
 }

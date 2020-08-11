@@ -43,6 +43,10 @@ public class User {
 	public int getPendingCompOffs() {
 		return pendingCompOffs;
 	}
+	
+	public void setPendingCompOffs(int pendingCompOffs) {
+		this.pendingCompOffs=pendingCompOffs;
+	}
 
 	@Override
 	public String toString() {

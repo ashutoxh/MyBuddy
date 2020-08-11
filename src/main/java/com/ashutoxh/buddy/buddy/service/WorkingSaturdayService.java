@@ -23,6 +23,10 @@ public interface WorkingSaturdayService extends WorkingSaturdayRepository {
 	public String setSaturdayDatesForYear();
 
 	public List<WorkingSaturdays> findByWorkingDateGreaterThan(LocalDate registeredDate);
+	
+	public WorkingSaturdays getLastWorkingUser();
+	
+	public WorkingSaturdays findTop1ByWorkingDateLessThanOrderByWorkingDateDesc(LocalDate sundayDate);
 
 	public List<WorkingSaturdays> findByWorkingDateBetween(LocalDate firstDate, LocalDate secondDate);
 
