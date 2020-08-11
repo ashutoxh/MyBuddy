@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,17 +25,23 @@ public class RequestController {
 	@Autowired
 	WorkingSaturdayServiceImpl workSatServiceImpl;
 
+	@GetMapping(path = "/registerUser/{name}")
+	@ApiOperation(value = "Add new users. Saturdays will be recalculated after registration. New user will be assigned Saturday after 1 cycle")
+	public User registerUser(@PathVariable String name) {
+		User user = userServiceImpl.addUser(name);
+		return user;
+	}
+	
 	@GetMapping(path = "/getAllUsers")
 	@ApiOperation(value = "Get list of names and pending comoffs of all users")
 	public List<User> getUsers() {
 		return userServiceImpl.getUsers();
 	}
-
-	@GetMapping(path = "/registerUser")
-	@ApiOperation(value = "Add new users. Saturdays will be recalculated after registration. New user will be assigned Saturday after 1 cycle")
-	public String registerUser(String name) {
-		String response = userServiceImpl.addUser(name);
-		return response;
+	
+	@DeleteMapping(path = "/removeUser/{name}")
+	@ApiOperation(value = "Remove users. Saturdays will be recalculated after removal.")
+	public void removeUser(@PathVariable String name) {
+		userServiceImpl.removeUser(name);
 	}
 
 	@GetMapping(path = "/getAllSaturdays")
@@ -64,8 +71,8 @@ public class RequestController {
 
 	@GetMapping(path = "/admin/setAllSaturdays")
 	@ApiOperation(value = "Admin: Resets entire working saturday list and recalculates from current day with existing registered users")
-	public String setSaturdays() {
-		String result = workSatServiceImpl.setSaturdayDatesForYear();
-		return result;
+	public List<WorkingSaturdays> setSaturdays() {
+		List<WorkingSaturdays> workList = workSatServiceImpl.setSaturdayDatesForYear();
+		return workList;
 	}
 }

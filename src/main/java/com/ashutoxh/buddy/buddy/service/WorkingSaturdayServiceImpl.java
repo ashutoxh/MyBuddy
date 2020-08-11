@@ -35,8 +35,7 @@ public class WorkingSaturdayServiceImpl {
 				monthNumber = i;
 		LocalDate monthStartDate = LocalDate.of(Year.now().getValue(), monthNumber, 1);
 		if (monthNumber != 0) {
-			workSatList = workingSaturdayService.findByWorkingDateBetween(monthStartDate,
-					monthStartDate.plusMonths(1));
+			workSatList = workingSaturdayService.findByWorkingDateBetween(monthStartDate, monthStartDate.plusMonths(1));
 		}
 		return workSatList;
 	}
@@ -53,25 +52,34 @@ public class WorkingSaturdayServiceImpl {
 		return workSatList;
 	}
 
-	public String reassignWorkingSaturday(User user) {
-		List<User> userList = userRepository.findAll();		//Get all users
-		int size = userList.size();
-		userList.clear();
-		LocalDate registeredDate = LocalDate.now();			//Get current date
-		
+	public List<WorkingSaturdays> reassignWorkingSaturday(User user) {
+		List<User> userList = userRepository.findAll(); // Get all users
+		LocalDate registeredDate = LocalDate.now(); // Get current date
+
 		List<WorkingSaturdays> workSatList = new ArrayList<WorkingSaturdays>();
-		workSatList = workingSaturdayService.findByWorkingDateGreaterThan(registeredDate);
-		workingSaturdayService.deleteAll(workSatList);
+
+		if (user != null) {
+			workSatList = workingSaturdayService.findByWorkingDateGreaterThan(registeredDate);
+			workingSaturdayService.deleteInBatch(workSatList);
+		} else 											// Truncate entire working Saturdays to recalculate. (Admin)
+			workingSaturdayService.deleteAllInBatch();
 		
-		LocalDate workingDate = registeredDate.with(TemporalAdjusters.next(DayOfWeek.SATURDAY));  //Get next Saturday from current date
-		workingDate = workingDate.plusWeeks(userList.size());			//Skip weeks equal to number of current users
-		
-		for(int i=0; i<size-1; i++) {
-			userList.add(new User(workSatList.get(i).getName()));
+		LocalDate workingDate = registeredDate.with(TemporalAdjusters.next(DayOfWeek.SATURDAY)); // Get next Saturday
+																									// from current date
+
+		if (user != null) {
+			workingDate = workingDate.plusWeeks(userList.size()); // Skip weeks equal to number of current users
+			int size = userList.size();
+			userList.clear();
+
+			for (int i = 0; i < size-1; i++) {
+				userList.add(new User(workSatList.get(i).getName()));
+			}
+			userList.add(user);
 		}
-		userList.add(user);
+
 		workSatList.clear();
-		
+
 		Year year = Year.now();
 		while (!workingDate.isAfter(LocalDate.of(year.getValue(), 12, 31))) {
 			for (User u : userList) {
@@ -80,28 +88,12 @@ public class WorkingSaturdayServiceImpl {
 			}
 		}
 		workSatList = workingSaturdayService.saveAll(workSatList);
-		return workSatList!=null? "Success":"Failed";
+		return workSatList;
 	}
 
-	public String setSaturdayDatesForYear() {
-		List<WorkingSaturdays> woList = getAllSaturdaysList();
-		workingSaturdayService.deleteAll();
+	public List<WorkingSaturdays> setSaturdayDatesForYear() {
+		List<WorkingSaturdays> woList = reassignWorkingSaturday(null);
 		woList = workingSaturdayService.saveAll(woList);
-		return woList != null ? "Success" : "Failed";
-	}
-
-	public List<WorkingSaturdays> getAllSaturdaysList() {
-		List<WorkingSaturdays> woList = new ArrayList<WorkingSaturdays>();
-		Year year = Year.now();
-		List<User> userList = userRepository.findAll();
-		LocalDate workingDate = LocalDate.of(year.getValue(), 1, 1)
-				.with(TemporalAdjusters.firstInMonth(DayOfWeek.SATURDAY)); // Gives 1st Saturday of current year
-		while (!workingDate.isAfter(LocalDate.of(year.getValue(), 12, 31))) {
-			for (User user : userList) {
-				woList.add(new WorkingSaturdays(user.getName(), workingDate));
-				workingDate = workingDate.plusDays(7);
-			}
-		}
 		return woList;
 	}
 }

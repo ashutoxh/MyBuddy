@@ -15,14 +15,18 @@ public class UserServiceImpl {
 	@Autowired
 	WorkingSaturdayServiceImpl workSatServiceImpl;
 
-	public List<User> getUsers(){
+	public List<User> getUsers() {
 		return (List<User>) userService.findAll();
 	}
-	
-	public String addUser(String name) {
+
+	public User addUser(String name) {
 		User user = userService.save(new User(name));
-		String result = workSatServiceImpl.reassignWorkingSaturday(user);
-		return result;
+		workSatServiceImpl.reassignWorkingSaturday(user);
+		return user;
 	}
 
+	public void removeUser(String name) {
+		User user = userService.findByName(name);
+		userService.deleteById(user.getId());
+	}
 }

@@ -13,5 +13,9 @@ public interface UserService extends UserRepository {
 	public List<User> getUsers();
 	
 	public User addUser(String name);
+	
+	public User findByName(String name);
+	
+	public void removeUser(String name);
 
 }
