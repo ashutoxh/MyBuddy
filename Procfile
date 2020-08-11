@@ -1,1 +1,1 @@
-web: bundle
+web:
