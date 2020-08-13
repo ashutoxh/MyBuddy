@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "working_saturdays")
-public class WorkingSaturdays implements Comparable<WorkingSaturdays> {
+public class WorkingSaturday implements Comparable<WorkingSaturday> {
 
 	@Id
 	@GeneratedValue
@@ -25,11 +25,10 @@ public class WorkingSaturdays implements Comparable<WorkingSaturdays> {
 	@JsonFormat(pattern = "dd-MM-yyyy")
 	LocalDate workingDate;
 
-	public WorkingSaturdays() {
-		// TODO Auto-generated constructor stub
+	public WorkingSaturday() {
 	}
 
-	public WorkingSaturdays(String name, LocalDate workingDate) {
+	public WorkingSaturday(String name, LocalDate workingDate) {
 		this.name = name;
 		this.workingDate = workingDate;
 	}
@@ -60,7 +59,7 @@ public class WorkingSaturdays implements Comparable<WorkingSaturdays> {
 	}
 
 	@Override
-	public int compareTo(WorkingSaturdays o) {
+	public int compareTo(WorkingSaturday o) {
 		return getWorkingDate().compareTo(o.getWorkingDate());
 	}
 

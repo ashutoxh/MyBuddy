@@ -21,7 +21,6 @@ public class User {
 	int pendingCompOffs;
 
 	public User() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public User(String name) {

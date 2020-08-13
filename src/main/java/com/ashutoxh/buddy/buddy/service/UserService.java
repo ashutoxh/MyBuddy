@@ -14,6 +14,8 @@ public interface UserService extends UserRepository {
 	
 	public User addUser(String name);
 	
+	public User addUserWithoutReassign(String name);
+	
 	public User findByName(String name);
 	
 	public void removeUser(String name);

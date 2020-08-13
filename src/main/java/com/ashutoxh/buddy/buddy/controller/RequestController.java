@@ -1,18 +1,26 @@
 package com.ashutoxh.buddy.buddy.controller;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ashutoxh.buddy.buddy.entity.NonWorkingSaturday;
 import com.ashutoxh.buddy.buddy.entity.User;
-import com.ashutoxh.buddy.buddy.entity.WorkingSaturdays;
+import com.ashutoxh.buddy.buddy.entity.WorkingSaturday;
+import com.ashutoxh.buddy.buddy.genericResponse.GenericResponse;
 import com.ashutoxh.buddy.buddy.scheduler.Scheduler;
+import com.ashutoxh.buddy.buddy.service.NonWorkingSaturdayServiceImpl;
 import com.ashutoxh.buddy.buddy.service.UserServiceImpl;
 import com.ashutoxh.buddy.buddy.service.WorkingSaturdayServiceImpl;
 
@@ -25,6 +33,8 @@ public class RequestController {
 	UserServiceImpl userServiceImpl;
 	@Autowired
 	WorkingSaturdayServiceImpl workSatServiceImpl;
+	@Autowired
+	NonWorkingSaturdayServiceImpl nonSatServiceImpl;
 	@Autowired
 	Scheduler scheduler;
 
@@ -43,47 +53,87 @@ public class RequestController {
 
 	@DeleteMapping(path = "/removeUser/{name}")
 	@ApiOperation(value = "Remove users. Saturdays will be recalculated after removal.")
-	public void removeUser(@PathVariable String name) {
+	public GenericResponse removeUser(@PathVariable String name) {
 		userServiceImpl.removeUser(name);
+		return new GenericResponse("Success", name + " : Deleted");
 	}
 
 	@GetMapping(path = "/getAllSaturdays")
 	@ApiOperation(value = "Get list working saturdays for entire year")
-	public List<WorkingSaturdays> getSaturdayForAll() {
-		List<WorkingSaturdays> workList = workSatServiceImpl.getWorkingSaturdays();
+	public List<WorkingSaturday> getSaturdayForAll() {
+		List<WorkingSaturday> workList = workSatServiceImpl.getWorkingSaturdays();
 		Collections.sort(workList);
 		return workList;
 	}
 
 	@GetMapping(path = "/getAllSaturdays/{month}")
 	@ApiOperation(value = "Get list of working saturdays for entire month. eg: july")
-	public List<WorkingSaturdays> getSaturdayForMonth(@PathVariable String month) {
-		List<WorkingSaturdays> workList = workSatServiceImpl.getWorkingSaturdaysForMonth(month);
+	public List<WorkingSaturday> getSaturdayForMonth(@PathVariable String month) {
+		List<WorkingSaturday> workList = workSatServiceImpl.getWorkingSaturdaysForMonth(month);
 		Collections.sort(workList);
 		return workList;
 	}
 
 	@GetMapping(path = "/swapSaturdays/first/{first}/second/{second}")
 	@ApiOperation(value = "Swap working saturdays in this month with names in order of working saturdays")
-	public List<WorkingSaturdays> swapSaturdays(@PathVariable String first, @PathVariable String second) {
-		List<WorkingSaturdays> workList = workSatServiceImpl
+	public List<WorkingSaturday> swapSaturdays(@PathVariable String first, @PathVariable String second) {
+		List<WorkingSaturday> workList = workSatServiceImpl
 				.swapSaturdays(Arrays.asList(new String[] { first, second }));
 		Collections.sort(workList);
 		return workList;
 	}
+	
+	@GetMapping(path = "/getAllNonWorkingSaturdays")
+	@ApiOperation(value = "Get list working saturdays for entire year")
+	public List<NonWorkingSaturday> getAllNonWorkingSaturdays() {
+		List<NonWorkingSaturday> nonWorkList = nonSatServiceImpl.getNonWorkingSaturdays();
+		Collections.sort(nonWorkList);
+		return nonWorkList;
+	}
 
-	// ADMIN CODES BELOW:
+	@GetMapping(path = "/setNonWorkingSaturday/{nonWorkingDate}")
+	@ApiOperation(value = "Set a non working Saturday [dd-MM-yyyy]. Saturdays will be recalculated")
+	public GenericResponse setHoliday(@PathVariable @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate nonWorkingDate) {
+		if (!nonWorkingDate.isBefore(LocalDate.now(ZoneId.of("Asia/Kolkata"))) && nonWorkingDate.getDayOfWeek() == DayOfWeek.SATURDAY) {
+			String response = workSatServiceImpl.setNonWorkingSaturday(nonWorkingDate);
+			return new GenericResponse("Success", nonWorkingDate + " : " + response);
+		}
+		return new GenericResponse("Failed", nonWorkingDate + " : is in past or is not a Saturday");
+	}
 
+	// ADMIN CONTROLLED PART BELOW:
+	
+	@GetMapping(path = "/admin/addUserWithoutReassign/{name}")
+	@ApiOperation(value = "Add new users. Saturdays will not be recalculated after registration")
+	public User addUserWithoutReassign(@PathVariable String name) {
+		User user = userServiceImpl.addUserWithoutReassign(name);
+		return user;
+	}
+	
 	@GetMapping(path = "/admin/setAllSaturdays")
 	@ApiOperation(value = "Admin: Resets entire working saturday list and recalculates from current day with existing registered users")
-	public List<WorkingSaturdays> setSaturdays() {
-		List<WorkingSaturdays> workList = workSatServiceImpl.setSaturdayDatesForYear();
+	public List<WorkingSaturday> setSaturdays() {
+		List<WorkingSaturday> workList = workSatServiceImpl.assignWorkingSaturday();
+		Collections.sort(workList);
 		return workList;
+	}
+	
+	@DeleteMapping(path = "/admin/deleteAllNonWorkingSaturdays")
+	@ApiOperation(value = "Admin: Resets entire non working saturday list")
+	public GenericResponse deleteAllNonWorkingSaturdays() {
+		nonSatServiceImpl.removeAllNonWorkingSaturdays();
+		return new GenericResponse("Success", "All non working Saturdays deleted");
 	}
 
 	@GetMapping(path = "/admin/testRunCronJob")
-	@ApiOperation(value = "Admin: Runs job manually to increase comp offs")
+	@ApiOperation(value = "Admin: Runs job manually to increase comp off of previous working saturday")
 	public void runJobForCompOff() {
 		scheduler.incrementCompOff();
+	}
+	
+	@GetMapping(path = "/admin/checkServerDateTime")
+	@ApiOperation(value = "Admin: Checks current date of server")
+	public LocalDateTime checkCurrentDateTime() {
+		return LocalDateTime.now();
 	}
 }

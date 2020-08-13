@@ -6,7 +6,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import com.ashutoxh.buddy.buddy.entity.User;
-import com.ashutoxh.buddy.buddy.entity.WorkingSaturdays;
+import com.ashutoxh.buddy.buddy.entity.WorkingSaturday;
 import com.ashutoxh.buddy.buddy.service.UserService;
 import com.ashutoxh.buddy.buddy.service.WorkingSaturdayServiceImpl;
 
@@ -19,10 +19,10 @@ public class Scheduler {
 	@Autowired
 	UserService userService;
 
-	@Scheduled(cron = "0 0 0 ? * SUN", zone = "IST") 	//There are only 6 fields: second, minute, hour, day of month, month, day(s) of week
+	@Scheduled(cron = "0 0 0 ? * SUN", zone = "IST") 	//6 fields: second, minute, hour, day of month, month, day(s) of week
 	public void incrementCompOff() {
-		WorkingSaturdays workingSaturdays = workSatServiceImpl.getLastWorkingUser();
-		if(workingSaturdays != null) {
+		WorkingSaturday workingSaturdays = workSatServiceImpl.getLastWorkingUser();
+		if(workingSaturdays != null && !workingSaturdays.getName().equals(workSatServiceImpl.NON_WORKING_SATURDAY)) {
 			User user = userService.findByName(workingSaturdays.getName());
 			user.setPendingCompOffs(user.getPendingCompOffs()+1);
 			userService.save(user);

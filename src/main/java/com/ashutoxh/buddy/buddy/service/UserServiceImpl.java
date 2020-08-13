@@ -24,6 +24,12 @@ public class UserServiceImpl {
 		workSatServiceImpl.reassignWorkingSaturday(user);
 		return user;
 	}
+	
+	public User addUserWithoutReassign(String name) {
+		User user = userService.save(new User(name));
+		return user;
+	}
+
 
 	public void removeUser(String name) {
 		User user = userService.findByName(name);
