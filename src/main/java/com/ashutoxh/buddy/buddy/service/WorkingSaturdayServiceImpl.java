@@ -57,11 +57,13 @@ public class WorkingSaturdayServiceImpl {
 		List<WorkingSaturday> workSatList = new ArrayList<WorkingSaturday>();
 		workSatList = workingSaturdayService.findByWorkingDateBetweenAndNameIn(LocalDate.now(ZoneId.of("Asia/Kolkata")),
 				LocalDate.now(ZoneId.of("Asia/Kolkata")).plusMonths(1), nameList);
-		LocalDate tempDT1 = workSatList.get(0).getWorkingDate();
-		LocalDate tempDT2 = workSatList.get(1).getWorkingDate();
-		workSatList.get(0).setWorkingDate(tempDT2);
-		workSatList.get(1).setWorkingDate(tempDT1);
-		workingSaturdayService.saveAll(workSatList);
+		if (workSatList != null) {
+			LocalDate tempDT1 = workSatList.get(0).getWorkingDate();
+			LocalDate tempDT2 = workSatList.get(1).getWorkingDate();
+			workSatList.get(0).setWorkingDate(tempDT2);
+			workSatList.get(1).setWorkingDate(tempDT1);
+			workingSaturdayService.saveAll(workSatList);
+		}
 		return workSatList;
 	}
 

@@ -11,13 +11,15 @@ import com.ashutoxh.buddy.buddy.repository.UserRepository;
 public interface UserService extends UserRepository {
 
 	public List<User> getUsers();
-	
-	public User addUser(String name);
-	
-	public User addUserWithoutReassign(String name);
-	
+
+	public String addUser(String name);
+
+	public String addUserWithoutReassign(String name);
+
 	public User findByName(String name);
-	
-	public void removeUser(String name);
+
+	public String removeUser(String name);
+
+	public User getExistingUserByName(String name);
 
 }

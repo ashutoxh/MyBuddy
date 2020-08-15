@@ -28,11 +28,11 @@ public interface WorkingSaturdayService extends WorkingSaturdayRepository {
 	public WorkingSaturday getLastWorkingUser();
 
 	public List<WorkingSaturday> swapSaturdays(List<String> nameList);
-	
+
 	public List<WorkingSaturday> assignWorkingSaturday();
 
 	public List<WorkingSaturday> reassignWorkingSaturday(User user);
-	
+
 	public List<WorkingSaturday> getWSListForAssignReassign(List<User> userList);
 
 	public void setNonWorkingSaturday(LocalDate nonWorkingDate);

@@ -9,10 +9,13 @@ import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ashutoxh.buddy.buddy.entity.NonWorkingSaturday;
@@ -38,24 +41,27 @@ public class RequestController {
 	@Autowired
 	Scheduler scheduler;
 
-	@GetMapping(path = "/registerUser/{name}")
+	@PutMapping(path = "/registerUser/{name}")
+	@CacheEvict(value = "getAllUsers", allEntries = true)
 	@ApiOperation(value = "Add new users. Saturdays will be recalculated after registration. New user will be assigned Saturday after 1 cycle")
-	public User registerUser(@PathVariable String name) {
-		User user = userServiceImpl.addUser(name);
-		return user;
+	public GenericResponse registerUser(@PathVariable String name) {
+		String response = userServiceImpl.addUser(name);
+		return new GenericResponse("Success", name + " : " + response);
 	}
 
 	@GetMapping(path = "/getAllUsers")
+	@Cacheable(value = "getAllUsers")
 	@ApiOperation(value = "Get list of names and pending comoffs of all users")
 	public List<User> getUsers() {
 		return userServiceImpl.getUsers();
 	}
 
 	@DeleteMapping(path = "/removeUser/{name}")
+	@CacheEvict(value = "getAllUsers", allEntries = true)
 	@ApiOperation(value = "Remove users. Saturdays will be recalculated after removal.")
 	public GenericResponse removeUser(@PathVariable String name) {
-		userServiceImpl.removeUser(name);
-		return new GenericResponse("Success", name + " : Deleted");
+		String response = userServiceImpl.removeUser(name);
+		return new GenericResponse("Success", name + " : " + response);
 	}
 
 	@GetMapping(path = "/getAllSaturdays")
@@ -82,7 +88,7 @@ public class RequestController {
 		Collections.sort(workList);
 		return workList;
 	}
-	
+
 	@GetMapping(path = "/getAllNonWorkingSaturdays")
 	@ApiOperation(value = "Get list working saturdays for entire year")
 	public List<NonWorkingSaturday> getAllNonWorkingSaturdays() {
@@ -91,33 +97,34 @@ public class RequestController {
 		return nonWorkList;
 	}
 
-	@GetMapping(path = "/setNonWorkingSaturday/{nonWorkingDate}")
+	@PutMapping(path = "/setNonWorkingSaturday/{nonWorkingDate}")
 	@ApiOperation(value = "Set a non working Saturday [dd-MM-yyyy]. Saturdays will be recalculated")
 	public GenericResponse setHoliday(@PathVariable @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate nonWorkingDate) {
-		if (!nonWorkingDate.isBefore(LocalDate.now(ZoneId.of("Asia/Kolkata"))) && nonWorkingDate.getDayOfWeek() == DayOfWeek.SATURDAY) {
+		if (!nonWorkingDate.isBefore(LocalDate.now(ZoneId.of("Asia/Kolkata")))
+				&& nonWorkingDate.getDayOfWeek() == DayOfWeek.SATURDAY) {
 			String response = workSatServiceImpl.setNonWorkingSaturday(nonWorkingDate);
 			return new GenericResponse("Success", nonWorkingDate + " : " + response);
 		}
-		return new GenericResponse("Failed", nonWorkingDate + " : is in past or is not a Saturday");
+		return new GenericResponse("Success", nonWorkingDate + " : is in past or is not a Saturday");
 	}
 
 	// ADMIN CONTROLLED PART BELOW:
-	
-	@GetMapping(path = "/admin/addUserWithoutReassign/{name}")
+
+	@PutMapping(path = "/admin/addUserWithoutReassign/{name}")
 	@ApiOperation(value = "Add new users. Saturdays will not be recalculated after registration")
-	public User addUserWithoutReassign(@PathVariable String name) {
-		User user = userServiceImpl.addUserWithoutReassign(name);
-		return user;
+	public GenericResponse addUserWithoutReassign(@PathVariable String name) {
+		String response = userServiceImpl.addUserWithoutReassign(name);
+		return new GenericResponse("Success", name + " : " + response);
 	}
-	
-	@GetMapping(path = "/admin/setAllSaturdays")
+
+	@PutMapping(path = "/admin/setAllSaturdays")
 	@ApiOperation(value = "Admin: Resets entire working saturday list and recalculates from current day with existing registered users")
 	public List<WorkingSaturday> setSaturdays() {
 		List<WorkingSaturday> workList = workSatServiceImpl.assignWorkingSaturday();
 		Collections.sort(workList);
 		return workList;
 	}
-	
+
 	@DeleteMapping(path = "/admin/deleteAllNonWorkingSaturdays")
 	@ApiOperation(value = "Admin: Resets entire non working saturday list")
 	public GenericResponse deleteAllNonWorkingSaturdays() {
@@ -130,10 +137,10 @@ public class RequestController {
 	public void runJobForCompOff() {
 		scheduler.incrementCompOff();
 	}
-	
+
 	@GetMapping(path = "/admin/checkServerDateTime")
-	@ApiOperation(value = "Admin: Checks current date of server")
+	@ApiOperation(value = "Admin: Checks current date of server (IST used)")
 	public LocalDateTime checkCurrentDateTime() {
-		return LocalDateTime.now();
+		return LocalDateTime.now(ZoneId.of("Asia/Kolkata"));
 	}
 }

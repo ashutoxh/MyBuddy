@@ -1,5 +1,6 @@
 package com.ashutoxh.buddy.buddy.entity;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 import javax.persistence.Entity;
@@ -13,7 +14,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "working_saturdays")
-public class WorkingSaturday implements Comparable<WorkingSaturday> {
+public class WorkingSaturday implements Comparable<WorkingSaturday>, Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1677128890655570324L;
 
 	@Id
 	@GeneratedValue

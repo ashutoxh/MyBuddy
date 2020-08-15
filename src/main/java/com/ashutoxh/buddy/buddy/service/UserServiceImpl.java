@@ -19,21 +19,36 @@ public class UserServiceImpl {
 		return (List<User>) userService.findAll();
 	}
 
-	public User addUser(String name) {
-		User user = userService.save(new User(name));
-		workSatServiceImpl.reassignWorkingSaturday(user);
-		return user;
-	}
-	
-	public User addUserWithoutReassign(String name) {
-		User user = userService.save(new User(name));
-		return user;
+	public String addUser(String name) {
+		User user = getExistingUserByName(name);
+		if (user == null) {
+			user = userService.save(new User(name));
+			workSatServiceImpl.reassignWorkingSaturday(user);
+			return "Added";
+		}
+		return "Already exists";
 	}
 
+	public String addUserWithoutReassign(String name) {
+		User user = getExistingUserByName(name);
+		if (user == null) {
+			user = userService.save(new User(name));
+			return "Added";
+		}
+		return "Already exists";
+	}
 
-	public void removeUser(String name) {
-		User user = userService.findByName(name);
-		userService.deleteById(user.getId());
-		workSatServiceImpl.reassignWorkingSaturday(null);
+	public String removeUser(String name) {
+		User user = getExistingUserByName(name);
+		if (user != null) {
+			userService.deleteById(user.getId());
+			workSatServiceImpl.reassignWorkingSaturday(null);
+			return "Deleted";
+		}
+		return "User doesn't exists";
+	}
+
+	public User getExistingUserByName(String name) {
+		return userService.findByName(name);
 	}
 }
