@@ -19,7 +19,11 @@ public class UserServiceImpl {
 		return (List<User>) userService.findAll();
 	}
 
-	public String addUser(String name) {
+	public void addUser(User user) {
+		userService.save(user);
+	}
+
+	public String addUserByName(String name) {
 		User user = getExistingUserByName(name);
 		if (user == null) {
 			user = userService.save(new User(name));
@@ -49,6 +53,10 @@ public class UserServiceImpl {
 	}
 
 	public User getExistingUserByName(String name) {
+		return userService.findByName(name);
+	}
+
+	public User getUserByName(String name) {
 		return userService.findByName(name);
 	}
 }

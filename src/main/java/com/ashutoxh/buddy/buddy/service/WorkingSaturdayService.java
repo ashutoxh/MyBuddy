@@ -37,4 +37,6 @@ public interface WorkingSaturdayService extends WorkingSaturdayRepository {
 
 	public void setNonWorkingSaturday(LocalDate nonWorkingDate);
 
+	public void incrementCompOff();
+
 }

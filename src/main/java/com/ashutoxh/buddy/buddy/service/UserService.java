@@ -12,11 +12,15 @@ public interface UserService extends UserRepository {
 
 	public List<User> getUsers();
 
-	public String addUser(String name);
+	public void addUser(User user);
+	
+	public String addUserByName(String name);
 
 	public String addUserWithoutReassign(String name);
 
 	public User findByName(String name);
+	
+	public User getUserByName(String name);
 
 	public String removeUser(String name);
 

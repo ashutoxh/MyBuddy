@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import com.ashutoxh.buddy.buddy.entity.NonWorkingSaturday;
 import com.ashutoxh.buddy.buddy.entity.User;
 import com.ashutoxh.buddy.buddy.entity.WorkingSaturday;
-import com.ashutoxh.buddy.buddy.repository.UserRepository;
 
 @Service
 public class WorkingSaturdayServiceImpl {
@@ -28,7 +27,7 @@ public class WorkingSaturdayServiceImpl {
 	@Autowired
 	WorkingSaturdayService workingSaturdayService;
 	@Autowired
-	UserRepository userRepository;
+	UserServiceImpl userServiceImpl;
 	@Autowired
 	NonWorkingSaturdayServiceImpl nonSatServiceImpl;
 
@@ -68,8 +67,8 @@ public class WorkingSaturdayServiceImpl {
 	}
 
 	public List<WorkingSaturday> assignWorkingSaturday() {
-		List<User> userList = userRepository.findAll(); // Get all users
-
+		List<User> userList = userServiceImpl.getUsers(); // Get all users
+		workingSaturdayService.deleteAll();
 		List<WorkingSaturday> workSatList = getWSListForAssignReassign(userList);
 
 		workSatList = workingSaturdayService.saveAll(workSatList);
@@ -77,7 +76,7 @@ public class WorkingSaturdayServiceImpl {
 	}
 
 	public List<WorkingSaturday> reassignWorkingSaturday(User user) {
-		List<User> userList = userRepository.findAll(); // Get all users
+		List<User> userList = userServiceImpl.getUsers(); // Get all users
 		int size = userList.size();
 		userList.clear();
 		LocalDate registeredDate = LocalDate.now(ZoneId.of("Asia/Kolkata")); // Get current date
@@ -162,5 +161,14 @@ public class WorkingSaturdayServiceImpl {
 	public WorkingSaturday getLastWorkingUser() {
 		return workingSaturdayService
 				.findTop1ByWorkingDateLessThanOrderByWorkingDateDesc(LocalDate.now(ZoneId.of("Asia/Kolkata")));
+	}
+
+	public void incrementCompOff() {
+		WorkingSaturday workingSaturdays = getLastWorkingUser();
+		if (workingSaturdays != null && !workingSaturdays.getName().equals(NON_WORKING_SATURDAY)) {
+			User user = userServiceImpl.getExistingUserByName(workingSaturdays.getName());
+			user.setPendingCompOffs(user.getPendingCompOffs() + 1);
+			userServiceImpl.addUser(user);
+		}
 	}
 }
