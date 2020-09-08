@@ -24,12 +24,12 @@ public class WorkingSaturday implements Comparable<WorkingSaturday>, Serializabl
 	@Id
 	@GeneratedValue
 	@JsonIgnore
-	Integer id;
+	private Integer id;
 
 	@NotBlank
-	String name;
+	private String name;
 	@JsonFormat(pattern = "dd-MM-yyyy")
-	LocalDate workingDate;
+	private LocalDate workingDate;
 
 	public WorkingSaturday() {
 	}

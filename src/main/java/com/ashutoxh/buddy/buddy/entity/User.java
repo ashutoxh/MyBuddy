@@ -21,11 +21,11 @@ public class User implements Serializable{
 	@Id
 	@GeneratedValue
 	@JsonIgnore
-	Integer id;
+	private Integer id;
 
 	@NotBlank
-	String name;
-	int pendingCompOffs;
+	private String name;
+	private int pendingCompOffs;
 
 	public User() {
 	}

@@ -51,7 +51,10 @@ public class WorkingSaturdayServiceImpl {
 		}
 		return workSatList;
 	}
-
+	/**
+	 * @param List of users to swap
+	 * @return Swapped List of 2 users
+	 */
 	public List<WorkingSaturday> swapSaturdays(List<String> nameList) {
 		List<WorkingSaturday> workSatList = new ArrayList<WorkingSaturday>();
 		workSatList = workingSaturdayService.findByWorkingDateBetweenAndNameIn(LocalDate.now(ZoneId.of("Asia/Kolkata")),

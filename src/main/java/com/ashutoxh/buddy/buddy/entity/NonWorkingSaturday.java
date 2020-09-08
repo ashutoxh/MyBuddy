@@ -19,9 +19,9 @@ public class NonWorkingSaturday implements Comparable<NonWorkingSaturday>, Seria
 
 	@Id
 	@GeneratedValue
-	Integer id;
+	private Integer id;
 
-	LocalDate nonWorkingDate;
+	private LocalDate nonWorkingDate;
 
 	public NonWorkingSaturday() {
 	}
